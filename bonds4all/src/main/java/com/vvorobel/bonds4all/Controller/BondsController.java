@@ -32,12 +32,12 @@ public class BondsController {
     @PostMapping("/clients/{id}/bonds")
     public Bond createBond(@Valid @RequestBody Bond bond, @PathVariable("id") int clientId, HttpServletRequest request) {
         LocalDateTime now = LocalDateTime.now();
-        if (bond.getAmount() > MAX_BOND_AMOUNT && now.getHour() >= MIN_ILLEGAL_TIME && now.getHour() < MAX_ILLEGAL_TIME) throw new ValidationException();
+        if (bond.getAmount() > MAX_BOND_AMOUNT && (now.getHour() >= MIN_ILLEGAL_TIME || now.getHour() < MAX_ILLEGAL_TIME)) throw new ValidationException();
         String ip = request.getRemoteAddr();
         List<Bond> soldedBonds = bondRepository.findByIp(ip).stream()
                 .filter(sBond -> sBond.getTime().toLocalDate().equals(now.toLocalDate()))
                 .collect( Collectors.toList() );
-        if (soldedBonds.size() >= MAX_SOLDED_BONDS_PER_DAY) throw new ValidationException();
+        if (soldedBonds.size() > MAX_SOLDED_BONDS_PER_DAY) throw new ValidationException();
         bond.setClientId(clientId);
         bond.setTime(now);
         bond.setIp(ip);
