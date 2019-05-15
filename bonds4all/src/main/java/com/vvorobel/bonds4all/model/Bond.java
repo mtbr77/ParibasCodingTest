@@ -3,7 +3,7 @@ package com.vvorobel.bonds4all.model;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,10 +16,10 @@ public class Bond {
 
     private int clientId;
 
-    @Size(min=5)
+    @Min(value=5)
     private int term;
 
-    @Size(min=1)
+    @Min(value=1)
     private long amount;
 
     private double coupon = 5.0;
@@ -31,7 +31,7 @@ public class Bond {
     public Bond() {
     }
 
-    public Bond(@Size(min = 5) int term, @Size(min = 1) long amount) {
+    public Bond(int term, long amount) {
         this.term = term;
         this.amount = amount;
     }
