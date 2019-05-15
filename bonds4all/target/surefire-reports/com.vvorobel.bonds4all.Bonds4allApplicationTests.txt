@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.vvorobel.bonds4all.Bonds4allApplicationTests
--------------------------------------------------------------------------------
-Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 11.706 s <<< FAILURE! - in com.vvorobel.bonds4all.Bonds4allApplicationTests
-getHello(com.vvorobel.bonds4all.Bonds4allApplicationTests)  Time elapsed: 0.108 s  <<< FAILURE!
-java.lang.AssertionError: Status expected:<200> but was:<404>
-	at com.vvorobel.bonds4all.Bonds4allApplicationTests.getHello(Bonds4allApplicationTests.java:32)
-
