@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.vvorobel.bonds4all.Controller.Regulations.*;
 
 @RestController
 public class BondsController {
@@ -21,15 +24,23 @@ public class BondsController {
 
     @GetMapping("/clients/{id}/bonds")
     public List<Bond> getClientBonds(@PathVariable("id") int id) {
-        return bondRepository.findByClientId(id);
-
+        List<Bond> bonds = bondRepository.findByClientId(id);
+        if (bonds.isEmpty()) throw new ResourceNotFoundException(id);
+        return bonds;
     }
 
     @PostMapping("/clients/{id}/bonds")
     public Bond createBond(@Valid @RequestBody Bond bond, @PathVariable("id") int clientId, HttpServletRequest request) {
+        LocalDateTime now = LocalDateTime.now();
+        if (bond.getAmount() > MAX_BOND_AMOUNT && now.getHour() >= MIN_ILLEGAL_TIME && now.getHour() < MAX_ILLEGAL_TIME) throw new ValidationException();
+        String ip = request.getRemoteAddr();
+        List<Bond> soldedBonds = bondRepository.findByIp(ip).stream()
+                .filter(sBond -> sBond.getTime().toLocalDate().equals(now.toLocalDate()))
+                .collect( Collectors.toList() );
+        if (soldedBonds.size() >= MAX_SOLDED_BONDS_PER_DAY) throw new ValidationException();
         bond.setClientId(clientId);
-        bond.setTime(LocalDateTime.now());
-        bond.setIp(request.getRemoteAddr());
+        bond.setTime(now);
+        bond.setIp(ip);
         return bondRepository.save(bond);
     }
 }

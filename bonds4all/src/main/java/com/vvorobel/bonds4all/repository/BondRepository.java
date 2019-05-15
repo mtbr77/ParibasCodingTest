@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface BondRepository extends JpaRepository<Bond, Integer> {
     List<Bond> findByClientId(int clientId);
+    List<Bond> findByIp(String ip);
 }
