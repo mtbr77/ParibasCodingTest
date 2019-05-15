@@ -23,8 +23,7 @@ public class ClientsController {
 
     @PostMapping("/clients")
     public Client createClient(@Valid @RequestBody Client client) {
-        return clientRepository
-                .findByEmail(client.getEmail())
-                .orElse(clientRepository.save(client));
+        Client oldClient = clientRepository.findByEmail(client.getEmail());
+        return oldClient !=null ? oldClient : clientRepository.save(client);
     }
 }
