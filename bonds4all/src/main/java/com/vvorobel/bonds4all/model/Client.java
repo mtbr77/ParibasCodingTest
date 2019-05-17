@@ -14,10 +14,10 @@ public class Client {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private int id;
 
-    @Size(min = 1, max=20)
+    @Size(min = 1)
     private String name;
 
-    @Size(min = 1, max=20)
+    @Size(min = 1)
     private String surname;
 
     @Email

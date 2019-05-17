@@ -3,6 +3,8 @@ package com.vvorobel.bonds4all.Controller;
 import com.vvorobel.bonds4all.model.Bond;
 import com.vvorobel.bonds4all.repository.BondRepository;
 import com.vvorobel.bonds4all.repository.ClientRepository;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,5 +44,32 @@ public class BondsController {
         bond.setTime(now);
         bond.setIp(ip);
         return bondRepository.save(bond);
+    }
+
+    @PutMapping("/clients/{id}/bonds/{bondId}")
+    public Bond adjustBondTerm(@RequestBody Bond newBond, @PathVariable("id") int clientId, @PathVariable("bondId") int bondId, HttpServletRequest request) {
+        List<Bond> bonds = bondRepository.findByClientId(clientId);
+        if (bonds.isEmpty()) throw new ResourceNotFoundException(clientId);
+        Bond bond = bonds.stream()
+                .filter(sBond -> bondId == sBond.getId())
+                .findAny().orElseThrow(() -> new ResourceNotFoundException(bondId));
+        bond.setTime(LocalDateTime.now());
+        bond.setIp(request.getRemoteAddr());
+        bond.setTerm(newBond.getTerm());
+        bond.setCoupon(bond.getCoupon() * (1 - COUPON_DECREASE_PERCENT/100.0));
+        return bondRepository.save(bond);
+    }
+
+
+    @GetMapping("/clients/{id}/bonds/{bondId}/history")
+    public List<Bond> adjustBondTerm(@PathVariable("id") int clientId, @PathVariable("bondId") int bondId) {
+        List<Bond> bonds = bondRepository.findByClientId(clientId);
+        if (bonds.isEmpty()) throw new ResourceNotFoundException(clientId);
+        Bond bond = bonds.stream()
+                .filter(sBond -> bondId == sBond.getId())
+                .findAny().orElseThrow(() -> new ResourceNotFoundException(bondId));
+
+        AuditReader reader = AuditReaderFactory.get(session);
+        return bondHistory;
     }
 }
