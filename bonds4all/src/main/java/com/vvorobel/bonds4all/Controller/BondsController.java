@@ -5,9 +5,12 @@ import com.vvorobel.bonds4all.repository.BondRepository;
 import com.vvorobel.bonds4all.repository.ClientRepository;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -23,6 +26,9 @@ public class BondsController {
 
     @Autowired
     private BondRepository bondRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @GetMapping("/clients/{id}/bonds")
     public List<Bond> getClientBonds(@PathVariable("id") int id) {
@@ -69,7 +75,15 @@ public class BondsController {
                 .filter(sBond -> bondId == sBond.getId())
                 .findAny().orElseThrow(() -> new ResourceNotFoundException(bondId));
 
-        AuditReader reader = AuditReaderFactory.get(session);
-        return bondHistory;
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+        List<Object[]> result = reader.createQuery().forRevisionsOfEntity(Bond.class, false, false)
+                .add(AuditEntity.id().eq(bondId))
+                .getResultList();
+        return result.stream()
+                .filter(x -> x instanceof Object[])
+                .map(x -> (Object[])x)
+                .map(x -> (Bond)((Object[])x)[0])
+                .collect(Collectors.toList());
+
     }
 }
