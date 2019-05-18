@@ -56,14 +56,17 @@ public class BondsController {
     public Bond adjustBondTerm(@RequestBody Bond newBond, @PathVariable("id") int clientId, @PathVariable("bondId") int bondId, HttpServletRequest request) {
         List<Bond> bonds = bondRepository.findByClientId(clientId);
         if (bonds.isEmpty()) throw new ResourceNotFoundException(clientId);
-        Bond bond = bonds.stream()
+        Bond oldBond = bonds.stream()
                 .filter(sBond -> bondId == sBond.getId())
                 .findAny().orElseThrow(() -> new ResourceNotFoundException(bondId));
-        bond.setTime(LocalDateTime.now());
-        bond.setIp(request.getRemoteAddr());
-        bond.setTerm(newBond.getTerm());
-        bond.setCoupon(bond.getCoupon() * (1 - COUPON_DECREASE_PERCENT/100.0));
-        return bondRepository.save(bond);
+        oldBond.setTime(LocalDateTime.now());
+        oldBond.setIp(request.getRemoteAddr());
+        int newTerm = newBond.getTerm();
+        int oldTerm = oldBond.getTerm();
+        oldBond.setTerm(newTerm);
+        if (newTerm > oldTerm)
+            oldBond.setCoupon(oldBond.getCoupon() * (1 - COUPON_DECREASE_PERCENT/100.0));
+        return bondRepository.save(oldBond);
     }
 
 
