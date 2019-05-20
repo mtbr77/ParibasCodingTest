@@ -7,7 +7,7 @@ to create bond use POST to localhost:8080/clients/{id}/bonds with json like {"te
 
 to get bonds use GET for localhost:8080/clients/{id}/bonds
 
-to adjust bond term use PUT to localhost:8080/clients/{id}/bonds with json like {"term":7} 
+to adjust bond term use PUT to localhost:8080/clients/{id}/bonds/{id} with json like {"term":7} 
 
 to get history use GET for localhost:8080/clients/{id}/bonds/{id}/history
 

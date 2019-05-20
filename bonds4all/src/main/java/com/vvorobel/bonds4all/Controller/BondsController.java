@@ -7,6 +7,8 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
@@ -38,7 +40,7 @@ public class BondsController {
     }
 
     @PostMapping("/clients/{id}/bonds")
-    public Bond createBond(@Valid @RequestBody Bond bond, @PathVariable("id") int clientId, HttpServletRequest request) {
+    public ResponseEntity<Bond> createBond(@Valid @RequestBody Bond bond, @PathVariable("id") int clientId, HttpServletRequest request) {
         LocalDateTime now = LocalDateTime.now();
         if (bond.getAmount() > MAX_BOND_AMOUNT && (now.getHour() >= MIN_ILLEGAL_TIME || now.getHour() < MAX_ILLEGAL_TIME)) throw new ValidationException();
         String ip = request.getRemoteAddr();
@@ -49,7 +51,7 @@ public class BondsController {
         bond.setClientId(clientId);
         bond.setTime(now);
         bond.setIp(ip);
-        return bondRepository.save(bond);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bondRepository.save(bond));
     }
 
     @PutMapping("/clients/{id}/bonds/{bondId}")

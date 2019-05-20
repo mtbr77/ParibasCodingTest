@@ -1,5 +1,6 @@
 package com.vvorobel.bonds4all.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -9,10 +10,11 @@ import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 @Table(name = "bonds")
 @Audited
 @Entity
-public class Bond {
+public class Bond implements Cloneable {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @NotAudited
@@ -44,5 +46,10 @@ public class Bond {
 
     public Bond(int term) {
         this.term = term;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
