@@ -1,4 +1,5 @@
-to create client use POST to localhost:8080/clients with json like {"name" : "John", "surname" : "Doe", "email" : "jd@gmail.com"}
+to create client use POST to localhost:8080/clients with json like 
+{"name" : "John", "surname" : "Doe", "email" : "jd@gmail.com"}
 
 to get clients use GET for localhost:8080/clients
 
